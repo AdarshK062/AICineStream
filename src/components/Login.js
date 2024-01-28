@@ -2,6 +2,9 @@ import React, { useRef, useState } from 'react'
 import { checkLoginData } from './validateData';
 import { createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from '../utils/firebase';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addUser } from '../utils/userSlice';
 
 const Login = () => {
     const [newUser, setNewUser] = useState(false);
@@ -9,6 +12,8 @@ const Login = () => {
     const name = useRef(null);
     const email = useRef(null);
     const password = useRef(null);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const handleNewUser = () => {
         setNewUser(!newUser);
@@ -21,38 +26,36 @@ const Login = () => {
         if(newUser){
             createUserWithEmailAndPassword(auth, email.current.value, password.current.value)
             .then((userCredential) => {
-              const user = userCredential.user;
-              console.log(user);
-            }).then((user) => {
-                updateProfile(auth.currentUser, {
-                    userName: name.current.value,
-                  }).then(() => {
-                    console.log("profile updated");
-                    console.log(user);
-                  }).catch((error) => {        
-                        const errorCode = error.code;
-                        const errorMessage = error.message;
-                        setErrorMessage(errorCode + "-"+ errorMessage);
-                  });
+              updateProfile(auth.currentUser, {
+                  displayName: name.current.value,
+                  photoURL: "https://avatars.githubusercontent.com/u/54463538?v=4",
+                })
+                .then(() => {
+                  navigate("/browse");
+                  const {uid, displayName, email, photoURL} = auth.currentUser;
+                  dispatch(addUser({uid: uid, email: email, displayName: displayName, photoURL : photoURL}));
+                })
+                .catch((error) => {        
+                      const errorCode = error.code;
+                      const errorMessage = error.message;
+                      setErrorMessage(errorCode + "-" + errorMessage);
+                });
             })
             .catch((error) => {
               const errorCode = error.code;
               const errorMessage = error.message;
-              setErrorMessage(errorCode + "-"+ errorMessage);
+              setErrorMessage(errorCode + "-" + errorMessage);
             });
         }
         else{
             signInWithEmailAndPassword(auth, email.current.value, password.current.value)
             .then((userCredential) => {
-              // Signed in 
-              const user = userCredential.user;
-              console.log(user);
-              // ...
+              navigate("/browse");
             })
             .catch((error) => {
               const errorCode = error.code;
               const errorMessage = error.message;
-              setErrorMessage(errorCode + "-"+ errorMessage);
+              setErrorMessage(errorCode + "-" + errorMessage);
             });
           
         }
@@ -69,7 +72,7 @@ const Login = () => {
             <input ref={email} placeholder='email address' type="text" className='w-full max-w-full p-4 my-6 border border-white rounded bg-transparent text-white text-xl focus:outline-none focus:ring focus:ring-gold focus:border-0'/>
             <input ref={password} type='password' placeholder='password' className='w-full max-w-full p-4 my-6 border border-white rounded bg-transparent text-white text-xl focus:outline-none focus:ring focus:ring-gold focus:border-0'/>
             {errorMessage && <p className='text-md font-bold text-red-600 text-left '>❌&nbsp;{errorMessage}</p>}
-            <button onClick={handleAuthentication} className='w-full max-w-full my-6 text-xl font-bold p-4 border-none rounded bg-gold text-001F3F hover:ring hover:ring-gold hover:bg-navyblue hover:text-gold transition duration-300'>
+            <button onClick={handleAuthentication} className='w-full max-w-full my-6 text-xl font-bold p-4 border-none rounded bg-gold text-navyblue hover:ring hover:ring-gold hover:bg-navyblue hover:text-gold transition duration-300'>
                 {newUser ? "Sign Up" : "Log In"}
             </button>
             {newUser && <h1 className="text-xl font-bold text-white mb-4 text-left cursor-pointer" onClick={handleNewUser}>
