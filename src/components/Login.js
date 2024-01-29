@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react'
 import { checkLoginData } from './validateData';
 import { createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from '../utils/firebase';
-import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { addUser } from '../utils/userSlice';
 
@@ -12,7 +11,6 @@ const Login = () => {
     const name = useRef(null);
     const email = useRef(null);
     const password = useRef(null);
-    const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const handleNewUser = () => {
@@ -31,7 +29,6 @@ const Login = () => {
                   photoURL: "https://avatars.githubusercontent.com/u/54463538?v=4",
                 })
                 .then(() => {
-                  navigate("/browse");
                   const {uid, displayName, email, photoURL} = auth.currentUser;
                   dispatch(addUser({uid: uid, email: email, displayName: displayName, photoURL : photoURL}));
                 })
@@ -50,7 +47,6 @@ const Login = () => {
         else{
             signInWithEmailAndPassword(auth, email.current.value, password.current.value)
             .then((userCredential) => {
-              navigate("/browse");
             })
             .catch((error) => {
               const errorCode = error.code;
@@ -62,7 +58,7 @@ const Login = () => {
     }
 
   return (
-    <div className='w-[400px] mx-auto bg-navyblue-500 border-gold border-2 p-5 rounded-lg mt-4 flex flex-wrap items-center justify-center'>
+    <div className=' md:w-3/12 absolute my-36 right-0 left-0 bg-opacity-80 w-[400px] mx-auto bg-navyblue-500 border-gold border-2 p-5 rounded-lg flex flex-wrap items-center justify-center'>
         
         <form onSubmit={(e) => e.preventDefault()}>
             <h1 className="text-3xl font-bold text-white mb-4 text-left">

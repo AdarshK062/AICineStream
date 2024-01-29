@@ -1,8 +1,15 @@
 import React from 'react'
+import useNowPlayingMovies from '../hooks/useNowPlayingMovies';
+import PlayMovieComponent from './PlayMovieComponent';
+import AllMovieCards from './AllMovieCards';
 
 const Browse = () => {
+  useNowPlayingMovies();
   return (
-    <div>Browse</div>
+    <div>
+      <PlayMovieComponent />
+      <AllMovieCards />
+    </div>
   )
 }
 
